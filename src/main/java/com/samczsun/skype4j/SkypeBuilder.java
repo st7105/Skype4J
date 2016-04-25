@@ -20,6 +20,10 @@ import com.samczsun.skype4j.exceptions.handler.ErrorHandler;
 import com.samczsun.skype4j.internal.client.FullClient;
 import com.samczsun.skype4j.internal.client.GuestClient;
 
+import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -29,7 +33,6 @@ import java.util.logging.Logger;
 public class SkypeBuilder {
 
     private final String username;
-    private final String password;
 
     private Set<String> resources = new HashSet<>();
     private List<ErrorHandler> errorHandlers = new ArrayList<>();
@@ -44,7 +47,6 @@ public class SkypeBuilder {
      */
     public SkypeBuilder(String username, String password) {
         this.username = username;
-        this.password = password;
     }
 
     /**
@@ -54,7 +56,6 @@ public class SkypeBuilder {
      */
     public SkypeBuilder(String username) {
         this.username = username;
-        this.password = null;
     }
 
     /**
@@ -108,7 +109,6 @@ public class SkypeBuilder {
      */
     public SkypeBuilder withChat(String id) {
         if (!id.startsWith("19:")) throw new IllegalArgumentException("Invalid chat id");
-        if (password != null) throw new IllegalArgumentException("Not guest account");
         this.chatId = id;
         return this;
     }
@@ -118,16 +118,35 @@ public class SkypeBuilder {
      *
      * @return The Skype instance
      */
-    public Skype build() {
+    public Skype buildWithPassword(final String password) {
+
+        if (password != null) {
+            return buildWithHash(passwordToHash(username, password));
+        } else {
+            return buildWithHash(null);
+        }
+    }
+
+    public Skype buildWithHash(final String hash) {
         if (resources.isEmpty()) {
             throw new IllegalArgumentException("No resources selected");
         }
-        if (password != null) {
-            return new FullClient(username, password, resources, customLogger, errorHandlers);
+        if (hash != null) {
+            return new FullClient(username, hash, resources, customLogger, errorHandlers);
         } else if (chatId != null) {
             return new GuestClient(username, chatId, resources, customLogger, errorHandlers);
         } else {
             throw new IllegalArgumentException("No chat specified");
+        }
+    }
+
+    public static String passwordToHash(final String username, final String password) {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            byte[] encodedMD = messageDigest.digest(String.format("%s\nskyper\n%s", username.toLowerCase(), password).getBytes(StandardCharsets.UTF_8));
+            return DatatypeConverter.printBase64Binary(encodedMD);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -27,8 +27,6 @@ import com.samczsun.skype4j.exceptions.InvalidCredentialsException;
 import com.samczsun.skype4j.exceptions.handler.ErrorHandler;
 import com.samczsun.skype4j.exceptions.handler.ErrorSource;
 import com.samczsun.skype4j.internal.*;
-import com.samczsun.skype4j.internal.threads.AuthenticationChecker;
-import com.samczsun.skype4j.internal.threads.ServerPingThread;
 import com.samczsun.skype4j.internal.utils.Encoder;
 import com.samczsun.skype4j.internal.utils.UncheckedRunnable;
 import com.samczsun.skype4j.user.Contact;
@@ -50,11 +48,11 @@ import java.util.regex.Pattern;
 public class FullClient extends SkypeImpl {
     private static final Pattern URL_PATTERN = Pattern.compile("threads/(.*)", Pattern.CASE_INSENSITIVE);
 
-    private final String password;
+    private final String hash;
 
-    public FullClient(String username, String password, Set<String> resources, Logger customLogger, List<ErrorHandler> errorHandlers) {
+    public FullClient(String username, String hash, Set<String> resources, Logger customLogger, List<ErrorHandler> errorHandlers) {
         super(username, resources, customLogger, errorHandlers);
-        this.password = password;
+        this.hash = hash;
     }
 
     @Override
@@ -63,7 +61,7 @@ public class FullClient extends SkypeImpl {
         data.put("scopes", "client");
         data.put("clientVersion", "0/7.4.85.102/259/");
         data.put("username", getUsername().toLowerCase());
-        data.put("passwordHash", hash());
+        data.put("passwordHash", hash);
         JsonObject loginData = Endpoints.LOGIN_URL.open(this)
                 .as(JsonObject.class)
                 .expect(200, "While logging in")
@@ -194,16 +192,6 @@ public class FullClient extends SkypeImpl {
             }
         } else {
             throw ExceptionHandler.generateException("No chat location", con);
-        }
-    }
-
-    private String hash() {
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            byte[] encodedMD = messageDigest.digest(String.format("%s\nskyper\n%s", getUsername().toLowerCase(), password).getBytes(StandardCharsets.UTF_8));
-            return DatatypeConverter.printBase64Binary(encodedMD);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
         }
     }
 }
