@@ -40,16 +40,6 @@ public class SkypeBuilder {
     private String chatId;
 
     /**
-     * Construct a SkypeBuilder with the given username and password
-     *
-     * @param username The username
-     * @param password The password
-     */
-    public SkypeBuilder(String username, String password) {
-        this.username = username;
-    }
-
-    /**
      * Construct a SkypeBuilder using the given guest username
      *
      * @param username The guest username (Can be anything)
