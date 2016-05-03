@@ -301,7 +301,7 @@ public abstract class ChatImpl implements Chat {
             } else {
                 throw new IllegalArgumentException(String.format("Cannot load P2P chat with identity %s", identity));
             }
-        } else if (identity.startsWith("8:")) {
+        } else if (identity.startsWith("8:") || identity.startsWith("4:")) {
             return new ChatIndividual(client, identity);
         } else {
             throw new IllegalArgumentException(String.format("Unknown chat type with identity %s", identity));
