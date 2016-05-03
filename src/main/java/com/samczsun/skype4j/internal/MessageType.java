@@ -620,7 +620,7 @@ public enum MessageType {
     private static final Pattern INITIATOR = Pattern.compile("<initiator>(\\d+:.+)</initiator>");
 
     private static final Map<String, MessageType> byValue = new HashMap<>();
-    private static final Pattern USER_PATTERN = Pattern.compile("((\\\\d+):)(.*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern USER_PATTERN = Pattern.compile("((\\d+):)(.*)", Pattern.CASE_INSENSITIVE);
     private static final Pattern STRIP_EDIT_PATTERN = Pattern.compile("</?[e_m][^<>]+>", Pattern.CASE_INSENSITIVE);
     private static final Pattern STRIP_QUOTE_PATTERN = Pattern.compile("(<(?:/?)(?:quote|legacyquote)[^>]*>)",
             Pattern.CASE_INSENSITIVE);
