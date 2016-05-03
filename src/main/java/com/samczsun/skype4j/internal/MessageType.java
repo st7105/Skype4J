@@ -687,7 +687,7 @@ public enum MessageType {
     public static User getUser(String url, Chat c) {
         Matcher m = USER_PATTERN.matcher(url);
         if (m.find()) {
-            return c.getUser(m.group(2));
+            return c.getUser(m.group(3));
         }
         throw conformError("User");
     }
