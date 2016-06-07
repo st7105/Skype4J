@@ -89,7 +89,7 @@ public class FullClient extends SkypeImpl {
             ExecutorService executorService = Executors.newFixedThreadPool(5);
             tasks.forEach(executorService::submit);
             executorService.shutdown();
-            executorService.awaitTermination(1, TimeUnit.DAYS);
+            executorService.awaitTermination(10, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
